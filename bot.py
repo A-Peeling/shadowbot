@@ -70,7 +70,7 @@ async def make(ctx, arg1=None, arg2=None):
             f.close()
             await ctx.send("k done.")
         else:
-            await ctx.send('You need to type a name and text for the file dumb.')
+            await ctx.send('You need to type a name and text for the file you dumbo.')
 
 
 @client.command()
