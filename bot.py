@@ -1,4 +1,5 @@
 import discord
+import re
 from discord.ext import commands
 from pathlib import Path
 
@@ -56,22 +57,24 @@ async def define(ctx, arg=None):
 
 @define.error
 async def define_error(ctx, error):
-    await ctx.send('Error could not find file.')
+    await ctx.send('Error could not find file. Do shadowbot terms for a list of terms')
 
 
 @client.command()
 async def make(ctx, arg1=None, arg2=None):
-    if ctx.message.author.id == 177169904376610816 or 291663444883800064:
-        if arg1 or arg2:
-            f = open('terms/' + arg1 + '.txt', 'w+')
-            f.write(arg2)
-            f.close()
-            f = open('terms.txt', 'a')
-            f.write(", "+arg1)
-            f.close()
-            await ctx.send("k done.")
-        else:
-            await ctx.send('You need to type a name and text for the file you dumbo.')
+    if ctx.message.author.id == 177169904376610816 or ctx.message.author.id == 291663444883800064:
+            if arg1 or arg2:
+                f = open('terms/' + arg1 + '.txt', 'w+')
+                f.write(arg2)
+                f.close()
+                f = open('terms.txt', 'a')
+                f.write(", "+arg1)
+                f.close()
+                await ctx.send("k done.")
+            else:
+                await ctx.send('You need to type a name and text for the file you dumbo.')
+    else:
+        await ctx.send("Your not cool enough to make a definition. :sunglasses:")
 
 
 @client.command()
@@ -81,7 +84,9 @@ async def terms(ctx):
     f.close()
 
 
-@client.command()
+@client.command(
+    aliases=['balance','money','bank'],
+    brief = 'Diamond balance.')
 async def bal(ctx, arg=None):
     temp = ctx.author.id
     if arg == None:
@@ -100,21 +105,59 @@ async def bal(ctx, arg=None):
             await ctx.send("Your balance is 0")
     else:
         if arg:
-            arg = arg.replace("<", "")
-            arg = arg.replace("@", "")
-            arg = arg.replace(">", "")
-            my_file = Path('users/' + arg + '.txt')
-            if my_file.is_file():
+            if re.search('[a-zA-Z]', arg):
+                await ctx.send("Error")
+            else:
+                arg = arg.replace("<", "")
+                arg = arg.replace("@", "")
+                arg = arg.replace(">", "")
+                my_file = Path('users/' + arg + '.txt')
+                if my_file.is_file():
 
-                f = open('users/' + arg + '.txt', 'r')
+                    f = open('users/' + arg + '.txt', 'r')
+                    answer = f.read()
+                    f.seek(0)
+                    f.close()
+                    await  ctx.send("Their balance is "+ answer)
+                else:
+                    await ctx.send("Creating file.")
+                    f = open('users/' + arg + '.txt', 'w+')
+                    f.write("0")
+                    f.close()
+                    await ctx.send("Their balance is 0")
+
+
+@client.command(
+    brief = '@user amount to add (use negatives to subtract)',
+    description = 'To change somebody\'s balance do @user + or - amount',
+    aliases=['add','change','changebal'])
+@commands.has_permissions(manage_guild=True)
+async def addbal(ctx, arg1=None, arg2=None):
+        if arg1:
+            arg1 = arg1.replace("<", "")
+            arg1 = arg1.replace("@", "")
+            arg1 = arg1.replace(">", "")
+            my_file = Path('users/' + arg1 + '.txt')
+            if my_file.is_file():
+                f = open('users/' + arg1 + '.txt', 'r+')
                 answer = f.read()
                 f.seek(0)
+                answer = int(answer)+int(arg2)
+                f.write(str(answer))
                 f.close()
-                await  ctx.send("Their balance is "+ answer)
+                await  ctx.send("Their balance is now " + str(answer))
             else:
-                await ctx.send("Creating file.")
-                f = open('users/' + arg + '.txt', 'w+')
-                f.write("0")
-                f.close()
-                await ctx.send("Their balance is 0")
+                if re.search('[a-zA-Z]', arg1):
+                    await ctx.send("Error")
+                else:
+                    await ctx.send("Creating file.")
+                    f = open('users/' + arg1 + '.txt', 'w+')
+                    f.write(str(arg2))
+                    f.close()
+                    await ctx.send("Their balance has been created and set to " + str(arg2))
+@addbal.error
+async def addbal_error(ctx, error):
+    if isinstance(error, commands.CheckFailure):
+        await ctx.send("Trying to cheat I see :eyes:. You need manage sever to run this command.")
+
 client.run(token)
