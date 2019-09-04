@@ -1,5 +1,6 @@
 import discord
 from discord.ext import commands
+from pathlib import Path
 
 p = 'shadowbot '
 client = commands.Bot(command_prefix=p)
@@ -55,7 +56,7 @@ async def define(ctx, arg=None):
 
 @define.error
 async def define_error(ctx, error):
-    await ctx.send('Could not recognize term. Do \"shadowbot terms\" for a list')
+    await ctx.send('Error could not find file.')
 
 
 @client.command()
@@ -79,4 +80,41 @@ async def terms(ctx):
     await ctx.message.author.send("```"+open('terms.txt', 'r').read()+'\n```')
     f.close()
 
+
+@client.command()
+async def bal(ctx, arg=None):
+    temp = ctx.author.id
+    if arg == None:
+        my_file = Path('users/' + str(temp) + '.txt')
+        if my_file.is_file():
+            f = open('users/' + str(temp) + '.txt', 'r')
+            answer = f.read()
+            f.seek(0)
+            f.close()
+            await  ctx.send("Your balance is "+ answer)
+        else:
+            await ctx.send("Creating file.")
+            f = open('users/' + str(temp) + '.txt', 'w+')
+            f.write("0")
+            f.close()
+            await ctx.send("Your balance is 0")
+    else:
+        if arg:
+            arg = arg.replace("<", "")
+            arg = arg.replace("@", "")
+            arg = arg.replace(">", "")
+            my_file = Path('users/' + arg + '.txt')
+            if my_file.is_file():
+
+                f = open('users/' + arg + '.txt', 'r')
+                answer = f.read()
+                f.seek(0)
+                f.close()
+                await  ctx.send("Their balance is "+ answer)
+            else:
+                await ctx.send("Creating file.")
+                f = open('users/' + arg + '.txt', 'w+')
+                f.write("0")
+                f.close()
+                await ctx.send("Their balance is 0")
 client.run(token)
