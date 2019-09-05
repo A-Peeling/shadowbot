@@ -96,13 +96,13 @@ async def bal(ctx, arg=None):
             answer = f.read()
             f.seek(0)
             f.close()
-            await  ctx.send("Your balance is "+ answer)
+            await  ctx.send("Your balance is "+ answer+ " ◈")
         else:
             await ctx.send("Creating file.")
             f = open('users/' + str(temp) + '.txt', 'w+')
             f.write("0")
             f.close()
-            await ctx.send("Your balance is 0")
+            await ctx.send("Your balance is 0"+ " ◈")
     else:
         if arg:
             if re.search('[a-zA-Z]', arg):
@@ -118,13 +118,13 @@ async def bal(ctx, arg=None):
                     answer = f.read()
                     f.seek(0)
                     f.close()
-                    await  ctx.send("Their balance is "+ answer)
+                    await  ctx.send("Their balance is "+ answer+ " ◈")
                 else:
                     await ctx.send("Creating file.")
                     f = open('users/' + arg + '.txt', 'w+')
                     f.write("0")
                     f.close()
-                    await ctx.send("Their balance is 0")
+                    await ctx.send("Their balance is 0"+ " ◈")
 
 
 @client.command(
@@ -141,11 +141,12 @@ async def addbal(ctx, arg1=None, arg2=None):
             if my_file.is_file():
                 f = open('users/' + arg1 + '.txt', 'r+')
                 answer = f.read()
+                f.truncate(0)
                 f.seek(0)
                 answer = int(answer)+int(arg2)
                 f.write(str(answer))
                 f.close()
-                await  ctx.send("Their balance is now " + str(answer))
+                await  ctx.send("Their balance is now " + str(answer)+ " ◈")
             else:
                 if re.search('[a-zA-Z]', arg1):
                     await ctx.send("Error")
@@ -154,7 +155,7 @@ async def addbal(ctx, arg1=None, arg2=None):
                     f = open('users/' + arg1 + '.txt', 'w+')
                     f.write(str(arg2))
                     f.close()
-                    await ctx.send("Their balance has been created and set to " + str(arg2))
+                    await ctx.send("Their balance has been created and set to " + str(arg2) + " ◈")
 @addbal.error
 async def addbal_error(ctx, error):
     if isinstance(error, commands.CheckFailure):
