@@ -1,5 +1,6 @@
 import discord
 import re
+import string
 from discord.ext import commands
 from pathlib import Path
 
@@ -111,6 +112,8 @@ async def bal(ctx, arg=None):
                 arg = arg.replace("<", "")
                 arg = arg.replace("@", "")
                 arg = arg.replace(">", "")
+                arg = arg.replace("!", "")
+                arg = arg.replace("&", "")
                 my_file = Path('users/' + arg + '.txt')
                 if my_file.is_file():
 
@@ -120,12 +123,14 @@ async def bal(ctx, arg=None):
                     f.close()
                     await  ctx.send("Their balance is "+ answer+ " ◈")
                 else:
-                    await ctx.send("Creating file.")
-                    f = open('users/' + arg + '.txt', 'w+')
-                    f.write("0")
-                    f.close()
-                    await ctx.send("Their balance is 0"+ " ◈")
-
+                    if len(arg) == 18 and arg.isdigit():
+                        await ctx.send("Creating file.")
+                        f = open('users/' + arg + '.txt', 'w+')
+                        f.write("0")
+                        f.close()
+                        await ctx.send("Their balance is 0"+ " ◈")
+                    else:
+                        await  ctx.send("Error")
 
 @client.command(
     brief = '@user amount to add (use negatives to subtract)',
@@ -151,11 +156,14 @@ async def addbal(ctx, arg1=None, arg2=None):
                 if re.search('[a-zA-Z]', arg1):
                     await ctx.send("Error")
                 else:
-                    await ctx.send("Creating file.")
-                    f = open('users/' + arg1 + '.txt', 'w+')
-                    f.write(str(arg2))
-                    f.close()
-                    await ctx.send("Their balance has been created and set to " + str(arg2) + " ◈")
+                    if len(arg1) == 18 and arg1.isdigit():
+                        await ctx.send("Creating file.")
+                        f = open('users/' + arg1 + '.txt', 'w+')
+                        f.write(str(arg2))
+                        f.close()
+                        await ctx.send("Their balance has been created and set to " + str(arg2) + " ◈")
+                    else:
+                        await  ctx.send("Error")
 @addbal.error
 async def addbal_error(ctx, error):
     if isinstance(error, commands.CheckFailure):
