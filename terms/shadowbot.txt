@@ -1,1 +1,1 @@
-Shadowbot is a Disocrd bot developed by reitraced and Stophman1 in 2019. It's purpose is to define common Linux and UNIX terminology. You can contribute to its development by making a pull request on Github: https://github.com/reitraced/shadowbot
+Shadowbot is a Disocrd bot developed by reitraced and Stophman1 in 2019. It's purpose is to define common Linux and UNIX terminology and handle a currency called diamonds. You can contribute to its development by making a pull request on Github: https://github.com/a-peeling/shadowbot
