@@ -142,12 +142,17 @@ async def addbal(ctx, arg1=None, arg2=None):
             arg1 = arg1.replace("<", "")
             arg1 = arg1.replace("@", "")
             arg1 = arg1.replace(">", "")
+            arg1 = arg1.replace("!", "")
             my_file = Path('users/' + arg1 + '.txt')
             if my_file.is_file():
                 f = open('users/' + arg1 + '.txt', 'r+')
                 answer = f.read()
                 f.truncate(0)
                 f.seek(0)
+                if answer == "":
+                    f.truncate(0)
+                    f.write("0")
+                    answer = 0
                 answer = int(answer)+int(arg2)
                 f.write(str(answer))
                 f.close()
@@ -163,7 +168,7 @@ async def addbal(ctx, arg1=None, arg2=None):
                         f.close()
                         await ctx.send("Their balance has been created and set to " + str(arg2) + " ◈")
                     else:
-                        await  ctx.send("Error")
+                        await  ctx.send("Error2")
 @addbal.error
 async def addbal_error(ctx, error):
     if isinstance(error, commands.CheckFailure):
