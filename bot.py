@@ -91,6 +91,7 @@ async def terms(ctx):
 @client.command(
     aliases=['balance','money','bank'],
     brief = 'Diamond balance.')
+@commands.has_any_role("【VIP】","Staff","Moderator")
 async def bal(ctx, arg=None):
     temp = ctx.author.id
     if arg == None:
@@ -140,6 +141,7 @@ async def bal(ctx, arg=None):
     description = 'To change somebody\'s balance do @user + or - amount',
     aliases=['add','change','changebal'])
 @commands.has_permissions(manage_guild=True)
+@commands.has_any_role("【VIP】","Staff","Moderator")
 async def addbal(ctx, arg1=None, arg2=None):
     if arg1:
         arg1 = arg1.replace("<", "")
@@ -182,6 +184,7 @@ async def addbal_error(ctx, error):
     description = 'Adds 10 ◈ daily to your account.',
     aliases=['freemoney','today', 'dailies'])
 @commands.cooldown(1, 86400, commands.BucketType.user)
+@commands.has_any_role("【VIP】","Staff","Moderator")
 async def daily(ctx):
     temp = ctx.author.id
     my_file = Path('users/' + str(temp) + '.txt')
@@ -207,7 +210,7 @@ async def daily(ctx):
 @daily.error
 async def daily_error(ctx, error):
     if isinstance(error, commands.CheckFailure):
-        await ctx.send("ERROR I AM BROKEN.")
+        await ctx.send("You can not use this command or there is an error.")
 
 @client.event
 async def on_command_error(ctx, error):
