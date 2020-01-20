@@ -1,8 +1,9 @@
 import discord
 import re
-import string
+import datetime
 from discord.ext import commands
 from pathlib import Path
+
 
 p = 'shadowbot '
 client = commands.Bot(command_prefix=p)
@@ -22,6 +23,8 @@ f.close()
 async def on_ready():
     print('We have logged in as {0.user}'.format(client))
     await client.change_presence(activity=discord.Game(name=lastgame))
+
+
 
 
 @client.command(pass_context=True, brief="Print info about bot", description='Same as defining shadowbot')
@@ -138,40 +141,79 @@ async def bal(ctx, arg=None):
     aliases=['add','change','changebal'])
 @commands.has_permissions(manage_guild=True)
 async def addbal(ctx, arg1=None, arg2=None):
-        if arg1:
-            arg1 = arg1.replace("<", "")
-            arg1 = arg1.replace("@", "")
-            arg1 = arg1.replace(">", "")
-            arg1 = arg1.replace("!", "")
-            my_file = Path('users/' + arg1 + '.txt')
-            if my_file.is_file():
-                f = open('users/' + arg1 + '.txt', 'r+')
-                answer = f.read()
+    if arg1:
+        arg1 = arg1.replace("<", "")
+        arg1 = arg1.replace("@", "")
+        arg1 = arg1.replace(">", "")
+        arg1 = arg1.replace("!", "")
+        my_file = Path('users/' + arg1 + '.txt')
+        if my_file.is_file():
+            f = open('users/' + arg1 + '.txt', 'r+')
+            answer = f.read()
+            f.truncate(0)
+            f.seek(0)
+            if answer == "":
                 f.truncate(0)
-                f.seek(0)
-                if answer == "":
-                    f.truncate(0)
-                    f.write("0")
-                    answer = 0
-                answer = int(answer)+int(arg2)
-                f.write(str(answer))
-                f.close()
-                await  ctx.send("Their balance is now " + str(answer)+ " ◈")
+                f.write("0")
+                answer = 0
+            answer = int(answer) + int(arg2)
+            f.write(str(answer))
+            f.close()
+            await  ctx.send("Their balance is now " + str(answer) + " ◈")
+        else:
+            if re.search('[a-zA-Z]', arg1):
+                await ctx.send("Error")
             else:
-                if re.search('[a-zA-Z]', arg1):
-                    await ctx.send("Error")
+                if len(arg1) == 18 and arg1.isdigit():
+                    await ctx.send("Creating file.")
+                    f = open('users/' + arg1 + '.txt', 'w+')
+                    f.write(str(arg2))
+                    f.close()
+                    await ctx.send("Their balance has been created and set to " + str(arg2) + " ◈")
                 else:
-                    if len(arg1) == 18 and arg1.isdigit():
-                        await ctx.send("Creating file.")
-                        f = open('users/' + arg1 + '.txt', 'w+')
-                        f.write(str(arg2))
-                        f.close()
-                        await ctx.send("Their balance has been created and set to " + str(arg2) + " ◈")
-                    else:
-                        await  ctx.send("Error2")
+                    await  ctx.send("Error2")
 @addbal.error
 async def addbal_error(ctx, error):
     if isinstance(error, commands.CheckFailure):
         await ctx.send("Trying to cheat I see :eyes:. You need manage sever to run this command.")
+
+@client.command(
+    brief = 'Get your daily money',
+    description = 'Adds 10 ◈ daily to your account.',
+    aliases=['freemoney','today', 'dailies'])
+@commands.cooldown(1, 86400, commands.BucketType.user)
+async def daily(ctx):
+    temp = ctx.author.id
+    my_file = Path('users/' + str(temp) + '.txt')
+    if my_file.is_file():
+        f = open('users/' + str(temp) + '.txt', 'r+')
+        answer = f.read()
+        f.truncate(0)
+        f.seek(0)
+        if answer == "":
+            answer = 0
+        answer = int(answer) + int(10)
+        f.write(str(answer))
+        f.close()
+    else:
+        await ctx.send("Creating file.")
+        f = open('users/' + str(temp) + '.txt', 'w+')
+        f.write("10")
+        f.close()
+        answer = 10
+    await ctx.send("Your balance is now " + str(answer) +" ◈")
+
+
+@daily.error
+async def daily_error(ctx, error):
+    if isinstance(error, commands.CheckFailure):
+        await ctx.send("ERROR I AM BROKEN.")
+
+@client.event
+async def on_command_error(ctx, error):
+     if isinstance(error, commands.CommandOnCooldown):  # send cooldown
+            time=round(error.retry_after)
+            await ctx.send("On **Cooldown.** Try again after "+ str(datetime.timedelta(seconds=time))+ " hours",delete_after=10.0,
+            )
 
 client.run(token)
